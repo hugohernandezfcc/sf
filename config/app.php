@@ -165,7 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
-
+        DoitCloudConsulting\Polls\PollsServiceProvider::class,
         /*
          * Application Service Providers...
          */
