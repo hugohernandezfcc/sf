@@ -11,7 +11,7 @@ class MainController2 extends Controller
 
     public function index(Request $request)
     {
-        return 'from controller2'
+        return 'from controller2';
     }
 }
 ?>
