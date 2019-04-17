@@ -1,6 +1,6 @@
 <?php
 
-namespace DoitCloudConsulting\Polls\Controllers;
+namespace doitcloudconsulting\polls\Controllers;
 
 
 use App\Http\Controllers\Controller;

@@ -1,5 +1,5 @@
 <?php
 
-	Route::get('mipaquete/main', 'DoitCloudConsulting\Polls\Controllers\MainController@index');
+	Route::get('mipaquete/main', 'doitcloudconsulting\polls\Controllers\MainController@index');
 
 ?>

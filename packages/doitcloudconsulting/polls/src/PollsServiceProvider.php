@@ -1,6 +1,6 @@
 <?php
 
-namespace DoitCloudConsulting\Polls;
+namespace doitcloudconsulting\polls;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +14,7 @@ class PollsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->loadRoutesFrom(__DIR__.'/routes.php');
-        $this->app->make('DoitCloudConsulting\Polls\Controllers\MainController');
+        $this->app->make('doitcloudconsulting\polls\Controllers\MainController');
     }
 
     /**
