@@ -11,7 +11,22 @@ class MainController extends Controller
 
     public function index(Request $request)
     {
-        return "Hola mundo";
+    	$pruebita = new pruebita();
+
+        return $pruebita->hgdm('Hugo Hernández Meneses');
     }
 }
+
+/**
+ * de prueba
+ */
+class pruebita 
+{
+	
+	public function hgdm($value)
+	{
+		return $value;
+	}
+}
+
 ?>
