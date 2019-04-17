@@ -15,6 +15,7 @@ class PollsServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/routes.php');
         $this->app->make('doitcloudconsulting\polls\Controllers\MainController');
+        $this->app->make('doitcloudconsulting\polls\Controllers\MainController2');
     }
 
     /**
