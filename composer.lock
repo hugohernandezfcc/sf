@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "content-hash": "33a8b76948b25b6345d384413ec3ca90",
@@ -166,9 +166,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/doitcloudconsulting/polls",
-                "reference": "6d1ea709cd91e8307d3b6bec794cad0055589620"
+                "reference": "9edb537cf1d4a5ae9796f781f3880752fd059ca9",
+                "shasum": null
             },
             "require": {
+                "ext-soap": "*",
                 "php": ">=5.6.4"
             },
             "require-dev": {
