@@ -19,6 +19,5 @@ class MainController2 extends Controller
         return $toReturn->hugo('from controller :D');
     }
 
-    
 }
 ?>
