@@ -14,7 +14,10 @@ class PollsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->loadRoutesFrom(__DIR__.'/routes.php');
-        $this->app->make('doitcloudconsulting\polls\Controllers\MainController2');
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/SalesforceConfig.php', 'SalesforceConfig'
+        );
+        $this->app->make('doitcloudconsulting\polls\Controllers\Salesforce');
     }
 
     /**
@@ -24,6 +27,6 @@ class PollsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+
     }
 }

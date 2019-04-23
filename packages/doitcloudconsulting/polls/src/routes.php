@@ -1,6 +1,6 @@
 <?php
 
 
-	Route::get('mipaquete/main', 'doitcloudconsulting\polls\Controllers\MainController2@index');
+	Route::get('mipaquete/main', 'doitcloudconsulting\polls\Controllers\Salesforce@index');
 
 ?>
