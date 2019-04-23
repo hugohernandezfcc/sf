@@ -18,8 +18,8 @@ use doitcloudconsulting\polls\Controllers\sfdc\MassEmailMessage;
 /**
  * { SforceProcessRequest }
  */
-use doitcloudconsulting\polls\Controllers\sfdc\ProcessSubmitRequest
-use doitcloudconsulting\polls\Controllers\sfdc\ProcessWorkitemRequest
+use doitcloudconsulting\polls\Controllers\sfdc\ProcessSubmitRequest;
+use doitcloudconsulting\polls\Controllers\sfdc\ProcessWorkitemRequest;
 
 /**
  * { ProxySettings }
