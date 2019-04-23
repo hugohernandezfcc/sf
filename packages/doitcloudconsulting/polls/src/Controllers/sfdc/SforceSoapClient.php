@@ -1,7 +1,7 @@
 <?php
 namespace doitcloudconsulting\polls\Controllers\sfdc;
 
-
+use SoapClient;
 
 /**
  * This file contains two classes.
