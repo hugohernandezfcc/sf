@@ -1,7 +1,7 @@
 <?php
 namespace doitcloudconsulting\polls\Controllers\sfdc;
 
-class QueryResult implements Iterator{
+class QueryResult implements \Iterator{
 	public $queryLocator;
 	public $done;
 	public $records;

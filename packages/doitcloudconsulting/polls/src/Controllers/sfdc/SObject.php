@@ -143,7 +143,7 @@ class SObject {
 
 		$array = $this->xml2array('<Object xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'.$str.'</Object>', 2);
 
-		$xml = new stdClass();
+		$xml = new \stdClass();
 		if (!count($array['Object']))
 			return $xml;
 

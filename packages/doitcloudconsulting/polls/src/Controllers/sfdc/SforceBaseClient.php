@@ -48,7 +48,7 @@ use doitcloudconsulting\polls\Controllers\sfdc\PackageVersion;
 
 use doitcloudconsulting\polls\Controllers\sfdc\SforceSearchResult;
 use doitcloudconsulting\polls\Controllers\sfdc\QueryResult;
-use doitcloudconsulting\polls\Controllers\sfdc\SObject;
+use doitcloudconsulting\polls\Controllers\sfdc\SObject; /** evaluar si es necesario que sea cargado aquí*/
 
 use SoapClient;
 
