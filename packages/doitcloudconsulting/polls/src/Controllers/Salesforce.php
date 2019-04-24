@@ -184,17 +184,21 @@ class Salesforce extends Controller
           $sp = new SforceValidationData( $information[$i] );
           if(count($sp->result()) > 0 )
             array_push($applyValidation, $sp->result());
-            
 
-          if(config('SalesforceConfig.Mode') == 'partner'){
+          
+          $validationT = SforceValidationData::readyToUpdate($information[$i]);
+          if(!is_string($validationT) && is_bool($validationT)){
+            if(config('SalesforceConfig.Mode') == 'partner'){
 
-            $sObject = new SObject();
-            $sObject->fields = $information[$i];
-            $sObject->type = $object;
-            $sObject->id = $information[$i]['id']
-            array_push($records, $sObject);   
+              $sObject = new SObject();
+              $sObject->fields = $information[$i];
+              $sObject->type = $object;
+              $sObject->id = (isset($information[$i]['id'])) ? $information[$i]['id'] : $information[$i]['Id'];
+              array_push($records, $sObject);   
 
+            }
           }
+          
         }
 
         if(!count($applyValidation) > 0)
@@ -218,7 +222,7 @@ class Salesforce extends Controller
         return $this->modeReturn($this->mySforceConnection->create($records), 'json');
 
       }
-
+    }
 
     public function index(Request $request)
     {
@@ -226,12 +230,13 @@ class Salesforce extends Controller
         // $mySoapClient = $mySforceConnection->
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
 
-        echo "<pre>";
-          print_r($this->insert( 
-                  array (
-                      'Type' => 'Electrical'
-                ), 'Case') );
-        echo "</pre>";
+        // echo "<pre>";
+          print_r($this->update( array(
+                            array (
+                                'Type' => 'Electrical2',
+                                'id'  => '500f400000DwWZVAA3'
+                          )), 'Case') );
+        // echo "</pre>";
   //       echo "<br/>===================<br/>";
         
   
