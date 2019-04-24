@@ -72,6 +72,9 @@ class Salesforce extends Controller
 
         foreach ($response['original']->records as $record) {
                 $recordToArray = new SObject($record);
+                $var = explode('services', $this->loginInfo->serverUrl);
+                //dd($var[0]);
+                $recordToArray->link_record = $var[0] . $recordToArray->Id;
                 array_push($response['manageable'], $recordToArray);
         }
 
@@ -92,39 +95,49 @@ class Salesforce extends Controller
             break;
         }
 
-        switch ($mode) {
-          case 'json':
-            return json_encode($response);
-            break;
-
-          case 'base64':
-            return base64_encode(json_encode($response));
-            break;
-          
-          default:
-              return $response;
-            break;
-        }
         
+        return $this->modeReturn($response, ((is_null($mode)) ? 'object' : $mode) );
     }
 
 
-    public function insert()
+    public function insert($information, $object)
     {
-        $fields = array (
-            'Type' => 'Electrical'
-        );
+      $records = array();
 
-        $sObject = new SObject();
-        $sObject->fields = $fields;
-        $sObject->type = 'Case';
+      if (is_array($information) ) {
+        for ($i=0; $i < count($information); $i++) { 
 
-        $sObject2 = new SObject();
-        $sObject2->fields = $fields;
-        $sObject2->type = 'Case';
+          if(config('SalesforceConfig.Mode') == 'partner'){
+
+            $sObject = new SObject();
+            $sObject->fields = $information[$i];
+            $sObject->type = $object;
+            array_push($records, $sObject);   
+
+
+
+          }
+        }
+      }else{
+
+      }
+
+      return $this->modeReturn($this->mySforceConnection->create($records), 'object');
+
+        // $fields = array (
+        //     'Type' => 'Electrical'
+        // );
+
+        // $sObject = new SObject();
+        // $sObject->fields = $fields;
+        // $sObject->type = 'Case';
+
+        // $sObject2 = new SObject();
+        // $sObject2->fields = $fields;
+        // $sObject2->type = 'Case';
       
-        echo "**** Creating the following:\r\n";
-        $createResponse = $mySforceConnection->create(array($sObject, $sObject2));
+        // echo "**** Creating the following:\r\n";
+        // $createResponse = $mySforceConnection->create(array($sObject, $sObject2));
     }
 
     public function index(Request $request)
@@ -134,7 +147,17 @@ class Salesforce extends Controller
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
 
         echo "<pre>";
-        	print_r($this->query('SELECt Id, Name,BillingStreet,BillingCity,BillingState,Phone,Fax from Account LIMIT 5'));
+          print_r($this->insert( array(
+                  array (
+                      'Type' => 'Electrical'
+                  ),
+                  array (
+                      'Type' => 'Developer'
+                  ),
+                  array (
+                      'Type' => 'Developer2'
+                  )
+                ), 'Case') );
         echo "</pre>";
   //       echo "<br/>===================<br/>";
         
@@ -149,6 +172,26 @@ class Salesforce extends Controller
 
   //         $result = $mySforceConnection->describeSObject("Account");
   //         print_r($result);
+    }
+
+
+    public function modeReturn($response, $mode = null){
+
+      $mode = strtolower($mode);
+
+      switch ($mode) {
+          case 'json':
+            return json_encode($response);
+            break;
+
+          case 'base64':
+            return base64_encode(json_encode($response));
+            break;
+          
+          default:
+              return $response;
+            break;
+        }
     }
 
     public function wsdl($xml)
