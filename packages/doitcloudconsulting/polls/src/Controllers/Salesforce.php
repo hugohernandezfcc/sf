@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use doitcloudconsulting\polls\Controllers\sfdc\SforcePartnerClient;
 use doitcloudconsulting\polls\Controllers\sfdc\SObject;
 use Response;
-
+use doitcloudconsulting\polls\Controllers\sfdc\SforceValidationData;
 
 
 class Salesforce extends Controller
@@ -99,13 +99,47 @@ class Salesforce extends Controller
         return $this->modeReturn($response, ((is_null($mode)) ? 'object' : $mode) );
     }
 
+    /**
+     * Help to define if an array is bidimensional or unidimensional couting the key and values by the type. 
+     *
+     * @param      <type>  $toBeEvaluated  To be evaluated
+     *
+     * @return     string  ( description_of_the_return_value )
+     */
+    public function arrayType($toBeEvaluated)
+    {
+      $size = count($toBeEvaluated);
+      $sizeFinalRight = 0;
+      foreach ($toBeEvaluated as $key => $value) 
+        if (is_array($value) || is_int($key)) 
+          $sizeFinalRight++;
+        else
+          $sizeFinalRight = $sizeFinalRight-1;
+        
+
+      if ($size == $sizeFinalRight) 
+        return 'is_bidimensional';
+      else
+        return 'is_unidimensional';
+      
+
+    }
+
+
+    
 
     public function insert($information, $object)
     {
       $records = array();
+      $applyValidation = array();
 
-      if (is_array($information) ) {
+      if ( $this->arrayType($information) == 'is_bidimensional') {
         for ($i=0; $i < count($information); $i++) { 
+
+          $sp = new SforceValidationData( $information[$i] );
+          if(count($sp->result()) > 0 )
+            array_push($applyValidation, $sp->result());
+            
 
           if(config('SalesforceConfig.Mode') == 'partner'){
 
@@ -114,31 +148,77 @@ class Salesforce extends Controller
             $sObject->type = $object;
             array_push($records, $sObject);   
 
+          }
+        }
 
+        if(!count($applyValidation) > 0)
+          return $this->modeReturn($this->mySforceConnection->create($records), 'object');
+        else
+          return $applyValidation;
+      }else{
+
+        $sp = new SforceValidationData( $information );
+        if(count($sp->result()) > 0 )
+          return $sp->result();
+
+        if(config('SalesforceConfig.Mode') == 'partner'){
+
+          $sObject = new SObject();
+          $sObject->fields = $information;
+          $sObject->type = $object;
+          array_push($records, $sObject);   
+
+        }
+        return $this->modeReturn($this->mySforceConnection->create($records), 'json');
+      }
+    }
+
+    public function update($information, $object)
+    {
+      $records = array();
+      $applyValidation = array();
+
+      if ( $this->arrayType($information) == 'is_bidimensional') {
+        for ($i=0; $i < count($information); $i++) { 
+
+          $sp = new SforceValidationData( $information[$i] );
+          if(count($sp->result()) > 0 )
+            array_push($applyValidation, $sp->result());
+            
+
+          if(config('SalesforceConfig.Mode') == 'partner'){
+
+            $sObject = new SObject();
+            $sObject->fields = $information[$i];
+            $sObject->type = $object;
+            $sObject->id = $information[$i]['id']
+            array_push($records, $sObject);   
 
           }
         }
+
+        if(!count($applyValidation) > 0)
+          return $this->modeReturn($this->mySforceConnection->update($records), 'object');
+        else
+          return $applyValidation;
       }else{
+
+        $sp = new SforceValidationData( $information );
+        if(count($sp->result()) > 0 )
+          return $sp->result();
+
+        if(config('SalesforceConfig.Mode') == 'partner'){
+
+          $sObject = new SObject();
+          $sObject->fields = $information;
+          $sObject->type = $object;
+          array_push($records, $sObject);   
+
+        }
+        return $this->modeReturn($this->mySforceConnection->create($records), 'json');
 
       }
 
-      return $this->modeReturn($this->mySforceConnection->create($records), 'object');
-
-        // $fields = array (
-        //     'Type' => 'Electrical'
-        // );
-
-        // $sObject = new SObject();
-        // $sObject->fields = $fields;
-        // $sObject->type = 'Case';
-
-        // $sObject2 = new SObject();
-        // $sObject2->fields = $fields;
-        // $sObject2->type = 'Case';
-      
-        // echo "**** Creating the following:\r\n";
-        // $createResponse = $mySforceConnection->create(array($sObject, $sObject2));
-    }
 
     public function index(Request $request)
     {
@@ -147,16 +227,9 @@ class Salesforce extends Controller
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
 
         echo "<pre>";
-          print_r($this->insert( array(
+          print_r($this->insert( 
                   array (
                       'Type' => 'Electrical'
-                  ),
-                  array (
-                      'Type' => 'Developer'
-                  ),
-                  array (
-                      'Type' => 'Developer2'
-                  )
                 ), 'Case') );
         echo "</pre>";
   //       echo "<br/>===================<br/>";
@@ -189,6 +262,7 @@ class Salesforce extends Controller
             break;
           
           default:
+
               return $response;
             break;
         }
