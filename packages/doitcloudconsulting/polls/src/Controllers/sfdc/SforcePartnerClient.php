@@ -63,6 +63,7 @@ class SforcePartnerClient extends SforceBaseClient {
       }
     }
     $arg->sObjects = $sObjects;
+    //dd($sObjects);
     return parent::_create($arg);
   }
 
@@ -135,6 +136,7 @@ class SforcePartnerClient extends SforceBaseClient {
       }
     }
     $arg->sObjects = $sObjects;
+    //dd($sObjects);
     return parent::_update($arg);
   }
 

@@ -187,6 +187,7 @@ class Salesforce extends Controller
 
           
           $validationT = SforceValidationData::readyToUpdate($information[$i]);
+
           if(!is_string($validationT) && is_bool($validationT)){
             if(config('SalesforceConfig.Mode') == 'partner'){
 
@@ -194,6 +195,7 @@ class Salesforce extends Controller
               $sObject->fields = $information[$i];
               $sObject->type = $object;
               $sObject->id = (isset($information[$i]['id'])) ? $information[$i]['id'] : $information[$i]['Id'];
+
               array_push($records, $sObject);   
 
             }
@@ -201,25 +203,26 @@ class Salesforce extends Controller
           
         }
 
+
         if(!count($applyValidation) > 0)
           return $this->modeReturn($this->mySforceConnection->update($records), 'object');
         else
           return $applyValidation;
       }else{
 
-        $sp = new SforceValidationData( $information );
-        if(count($sp->result()) > 0 )
-          return $sp->result();
+        // $sp = new SforceValidationData( $information );
+        // if(count($sp->result()) > 0 )
+        //   return $sp->result();
 
-        if(config('SalesforceConfig.Mode') == 'partner'){
+        // if(config('SalesforceConfig.Mode') == 'partner'){
 
-          $sObject = new SObject();
-          $sObject->fields = $information;
-          $sObject->type = $object;
-          array_push($records, $sObject);   
+        //   $sObject = new SObject();
+        //   $sObject->fields = $information;
+        //   $sObject->type = $object;
+        //   array_push($records, $sObject);   
 
-        }
-        return $this->modeReturn($this->mySforceConnection->create($records), 'json');
+        // }
+        // return $this->modeReturn($this->mySforceConnection->create($records), 'json');
 
       }
     }
@@ -235,8 +238,18 @@ class Salesforce extends Controller
                             array (
                                 'Type' => 'Electrical2',
                                 'id'  => '500f400000DwWZVAA3'
+                          ),array (
+                                'Type' => 'Electrical3',
+                                'Id'  => '500f400000DwWZVAA3'
                           )), 'Case') );
-        // echo "</pre>";
+
+      // print_r($this->insert( array(
+      //                       array (
+      //                           'Type' => 'Electrical3-1'
+      //                     ),array (
+      //                           'Type' => 'Electrical3-1'
+      //                     )), 'Case') );
+      //   // echo "</pre>";
   //       echo "<br/>===================<br/>";
         
   

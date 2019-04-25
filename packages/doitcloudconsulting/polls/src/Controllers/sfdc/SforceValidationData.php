@@ -40,28 +40,30 @@ class SforceValidationData {
    	public static function readyToUpdate($record)
    	{
    		$counter = 0;
-
+      $toReturn = null;
    		foreach ($record as $key => $value) {
-   			$counter++;
+   			
    			if (strtolower($key) == 'id') {
 
    				if (empty($value)) {
    					return json_encode($record) . ' => The Id field is empty';
    				}
 
-   				if (strlen($value) >= 15 && strlen($value) <= 18) {
+   				if (!strlen($value) > 14 && !strlen($value) < 19) {
    					return ' The Id is not valid';
    				}
 
-   			 	$this->toReturn = true;
+   			 	$toReturn = true;
+          break;
    			} 
+        $counter++;
    		}
 
    		if (count($record) == $counter) {
-   			$this->toReturn = json_encode($record) . ' => Not contains an id field';
+   			$toReturn = json_encode($record) . ' => Not contains an id field';
    		}
 
-   		return $this->toReturn;
+   		return $toReturn;
    	}
 
    	public function result()
