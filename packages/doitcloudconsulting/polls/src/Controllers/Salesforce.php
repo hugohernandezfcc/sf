@@ -51,10 +51,10 @@ class Salesforce extends Controller
 
     /**
      * Method used to execute a query soql with relevant information included on the response
-     *
-     * @param      <type>  $query  The query
-     *
-     * @return     <type>  depending the mode, is possible a json or an array or base64.
+     * @param  [type] $query      [Query to execute with the set of fields and name object and filters etc.]
+     * @param  [type] $mode       [the structure type that will be returned when the execution finished]
+     * @param  [type] $returnJust [is possible defined the result that the user want catch, the options are bewteen original, data and manageable ]
+     * @return [type]             [list of records]
      */
     public function query($query, $mode = NULL, $returnJust = NULL)
     {
@@ -243,14 +243,7 @@ class Salesforce extends Controller
                                 'Id'  => '500f400000DwWZVAA3'
                           )), 'Case') );
 
-      // print_r($this->insert( array(
-      //                       array (
-      //                           'Type' => 'Electrical3-1'
-      //                     ),array (
-      //                           'Type' => 'Electrical3-1'
-      //                     )), 'Case') );
-      //   // echo "</pre>";
-  //       echo "<br/>===================<br/>";
+
         
   
 	 //  	echo "<br/>===================<br/>";
