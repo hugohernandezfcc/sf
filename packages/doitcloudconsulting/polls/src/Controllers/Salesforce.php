@@ -60,42 +60,40 @@ class Salesforce extends Controller
     {
 
         if($returnJust != 'original' && $returnJust != 'data' && $returnJust != 'manageable' && !is_null($returnJust) )
-          return 'ERROR_RETURN_BUNDLED_DATA';
+            return 'ERROR_RETURN_BUNDLED_DATA';
         
         $response['data'] = $this->informationqueries($query);
 
         if($response['data']['is_valid_query'] == 'NOT_VALID_QUERY')
-          return $response['data']['is_valid_query'];
+            return $response['data']['is_valid_query'];
 
         $response['original'] = $this->mySforceConnection->query(($query));
         $response['manageable'] = array();
 
         foreach ($response['original']->records as $record) {
-                $recordToArray = new SObject($record);
-                $var = explode('services', $this->loginInfo->serverUrl);
+            $recordToArray = new SObject($record);
+            $var = explode('services', $this->loginInfo->serverUrl);
                 //dd($var[0]);
-                $recordToArray->link_record = $var[0] . $recordToArray->Id;
-                array_push($response['manageable'], $recordToArray);
+            $recordToArray->link_record = $var[0] . $recordToArray->Id;
+            array_push($response['manageable'], $recordToArray);
         }
 
         switch ($returnJust) {
-          case 'original':
-            unset($response['manageable']);
-            unset($response['data']);
+            case 'original':
+                unset($response['manageable']);
+                unset($response['data']);
             break;
 
-          case 'data':
-            unset($response['manageable']);
-            unset($response['original']);
+            case 'data':
+                unset($response['manageable']);
+                unset($response['original']);
             break;
 
-          case 'manageable':
-            unset($response['data']);
-            unset($response['original']);
+            case 'manageable':
+                unset($response['data']);
+                unset($response['original']);
             break;
-        }
-
-        
+        } 
         return $this->modeReturn($response, ((is_null($mode)) ? 'object' : $mode) );
     }
 
@@ -108,124 +106,243 @@ class Salesforce extends Controller
      */
     public function arrayType($toBeEvaluated)
     {
-      $size = count($toBeEvaluated);
-      $sizeFinalRight = 0;
-      foreach ($toBeEvaluated as $key => $value) 
-        if (is_array($value) || is_int($key)) 
-          $sizeFinalRight++;
-        else
-          $sizeFinalRight = $sizeFinalRight-1;
+        $size = count($toBeEvaluated);
+        $sizeFinalRight = 0;
+        foreach ($toBeEvaluated as $key => $value) 
+            if (is_array($value) || is_int($key)) 
+                $sizeFinalRight++;
+            else
+                $sizeFinalRight = $sizeFinalRight-1;
         
-
-      if ($size == $sizeFinalRight) 
-        return 'is_bidimensional';
-      else
-        return 'is_unidimensional';
-      
-
+        if ($size == $sizeFinalRight) 
+            return 'is_bidimensional';
+        else
+            return 'is_unidimensional';
     }
-
-
-    
 
     public function insert($information, $object)
     {
-      $records = array();
-      $applyValidation = array();
+        $records = array();
+        $applyValidation = array();
 
-      if ( $this->arrayType($information) == 'is_bidimensional') {
-        for ($i=0; $i < count($information); $i++) { 
+        if ( $this->arrayType($information) == 'is_bidimensional') {
+            for ($i=0; $i < count($information); $i++) { 
 
-          $sp = new SforceValidationData( $information[$i] );
-          if(count($sp->result()) > 0 )
-            array_push($applyValidation, $sp->result());
-            
+                $sp = new SforceValidationData( $information[$i] );
+                if(count($sp->result()) > 0 )
+                    array_push($applyValidation, $sp->result());
+                
+                if(config('SalesforceConfig.Mode') == 'partner'){
 
-          if(config('SalesforceConfig.Mode') == 'partner'){
+                    $sObject = new SObject();
+                    $sObject->fields = $information[$i];
+                    $sObject->type = $object;
+                    array_push($records, $sObject);   
+                }
+            }
 
-            $sObject = new SObject();
-            $sObject->fields = $information[$i];
-            $sObject->type = $object;
-            array_push($records, $sObject);   
+            if(!count($applyValidation) > 0)
+                return $this->modeReturn($this->mySforceConnection->create($records), 'object');
+            else
+                return $applyValidation;
+        }else{
 
-          }
-        }
+            $sp = new SforceValidationData( $information );
+            if(count($sp->result()) > 0 )
+                return $sp->result();
 
-        if(!count($applyValidation) > 0)
-          return $this->modeReturn($this->mySforceConnection->create($records), 'object');
-        else
-          return $applyValidation;
-      }else{
-
-        $sp = new SforceValidationData( $information );
-        if(count($sp->result()) > 0 )
-          return $sp->result();
-
-        if(config('SalesforceConfig.Mode') == 'partner'){
-
-          $sObject = new SObject();
-          $sObject->fields = $information;
-          $sObject->type = $object;
-          array_push($records, $sObject);   
-
-        }
+            if(config('SalesforceConfig.Mode') == 'partner'){
+                $sObject = new SObject();
+                $sObject->fields = $information;
+                $sObject->type = $object;
+                array_push($records, $sObject);   
+            }
         return $this->modeReturn($this->mySforceConnection->create($records), 'json');
       }
     }
 
     public function update($information, $object)
     {
-      $records = array();
-      $applyValidation = array();
+        $records = array();
+        $applyValidation = array();
 
-      if ( $this->arrayType($information) == 'is_bidimensional') {
-        for ($i=0; $i < count($information); $i++) { 
+        if ( $this->arrayType($information) == 'is_bidimensional') {
+            for ($i=0; $i < count($information); $i++) { 
 
-          $sp = new SforceValidationData( $information[$i] );
-          if(count($sp->result()) > 0 )
-            array_push($applyValidation, $sp->result());
+                    $sp = new SforceValidationData( $information[$i] );
+                    if(count($sp->result()) > 0 )
+                        array_push($applyValidation, $sp->result());
+              
+                $validationT = SforceValidationData::readyToUpdate($information[$i]);
 
-          
-          $validationT = SforceValidationData::readyToUpdate($information[$i]);
+                if(!is_string($validationT) && is_bool($validationT)){
+                    if(config('SalesforceConfig.Mode') == 'partner'){
 
-          if(!is_string($validationT) && is_bool($validationT)){
-            if(config('SalesforceConfig.Mode') == 'partner'){
+                        $sObject = new SObject();
+                        $sObject->fields = $information[$i];
+                        $sObject->type = $object;
+                        $sObject->id = (isset($information[$i]['id'])) ? $information[$i]['id'] : $information[$i]['Id'];
 
-              $sObject = new SObject();
-              $sObject->fields = $information[$i];
-              $sObject->type = $object;
-              $sObject->id = (isset($information[$i]['id'])) ? $information[$i]['id'] : $information[$i]['Id'];
-
-              array_push($records, $sObject);   
-
+                        array_push($records, $sObject);
+                    }
+                }
+              
             }
-          }
-          
+
+            if(!count($applyValidation) > 0)
+                return $this->modeReturn($this->mySforceConnection->update($records), 'object');
+            else
+                return $applyValidation;
+        }else{
+
+            $sp = new SforceValidationData( $information );
+            if(count($sp->result()) > 0 )
+                return $sp->result();
+
+            $validationT = SforceValidationData::readyToUpdate($information);
+            if(!is_string($validationT) && is_bool($validationT)){
+                if(config('SalesforceConfig.Mode') == 'partner'){
+
+                    $sObject = new SObject();
+                    $sObject->fields = $information;
+                    $sObject->type = $object;
+                    $sObject->id = (isset($information['id'])) ? $information['id'] : $information['Id'];
+                    array_push($records, $sObject);   
+                }
+                return $this->modeReturn($this->mySforceConnection->update($records), 'json');
+            }
         }
-
-
-        if(!count($applyValidation) > 0)
-          return $this->modeReturn($this->mySforceConnection->update($records), 'object');
-        else
-          return $applyValidation;
-      }else{
-
-        // $sp = new SforceValidationData( $information );
-        // if(count($sp->result()) > 0 )
-        //   return $sp->result();
-
-        // if(config('SalesforceConfig.Mode') == 'partner'){
-
-        //   $sObject = new SObject();
-        //   $sObject->fields = $information;
-        //   $sObject->type = $object;
-        //   array_push($records, $sObject);   
-
-        // }
-        // return $this->modeReturn($this->mySforceConnection->create($records), 'json');
-
-      }
     }
+
+    public function upsert($information, $object)
+    {
+        $records = array();
+        $applyValidation = array();
+        $field = '';
+        $validationT = '';
+
+        if ( $this->arrayType($information) == 'is_bidimensional') {
+            for ($i=0; $i < count($information); $i++) { 
+
+                $sp = new SforceValidationData( $information[$i] );
+
+                if(count($sp->result()) > 0 )
+                    return $sp->result();
+
+                $validationT = SforceValidationData::readyToUpsert($information[$i]);
+
+                if(is_bool($validationT) || strpos($validationT, "*") !== false ){
+                    
+                    if(!is_bool($validationT))
+                        $field = str_replace('*', '', $validationT);
+                    
+                    if(config('SalesforceConfig.Mode') == 'partner'){
+
+                        if(!is_bool($validationT)){
+                            $information[$i][$field] = $information[$i][$validationT];
+                            unset($information[$i][$validationT]);     
+                        }
+                        
+                        $sObject = new SObject();
+                        $sObject->fields = $information[$i];
+                        $sObject->type = $object;
+
+                        array_push($records, $sObject);   
+                    }
+                }    
+            }
+
+            if(!is_bool($validationT))
+                return $this->modeReturn($this->mySforceConnection->upsert($field, $records), 'json');
+            else
+                return $this->modeReturn($this->mySforceConnection->upsert('id', $records), 'json');
+
+        }else{
+
+            $sp = new SforceValidationData( $information );
+
+            if(count($sp->result()) > 0 )
+                return $sp->result();
+
+
+            $validationT = SforceValidationData::readyToUpsert($information);
+
+            if(is_bool($validationT) || strpos($validationT, "*") !== false ){
+                
+                if(!is_bool($validationT))
+                    $field = str_replace('*', '', $validationT);
+                
+                if(config('SalesforceConfig.Mode') == 'partner'){
+
+                    if(!is_bool($validationT)){
+                        $information[$field] = $information[$validationT];
+                        unset($information[$validationT]);     
+                    }
+                    
+
+                    $sObject = new SObject();
+                    $sObject->fields = $information;
+                    $sObject->type = $object;
+
+                    //$sObject->id = (isset($information['id'])) ? $information['id'] : $information['Id'];
+                    
+                    array_push($records, $sObject);   
+                }
+
+                if(!is_bool($validationT))
+                    return $this->modeReturn($this->mySforceConnection->upsert($field, $records), 'json');
+                else
+                    return $this->modeReturn($this->mySforceConnection->upsert('id', $records), 'json');
+
+            }else{
+                return 'External id or Id not found';
+            }
+        }
+    }
+
+    public function delete($ids)
+    {        
+        return $this->modeReturn($this->mySforceConnection->delete($ids), 'json');
+    }
+
+    public function undelete($ids)
+    {        
+        return $this->modeReturn($this->mySforceConnection->undelete($ids), 'json');
+    }
+
+    public function convertLead($value='',$createOpportunity = false, )
+    {
+        $newLead = new SObject();
+        
+        $fields = array(
+            'Company' => 'test company',
+            'FirstName' => 'John',
+            'LastName' => 'Smith'
+        );
+        
+        $newLead->fields = $fields;
+        $newLead->type = 'Lead';
+        
+        $createResponse =
+            $this->mySforceConnection->create(
+                array($newLead)
+        );
+        
+        echo "**** Created lead:\r\n <pre>";
+        print_r($createResponse);
+        $leadConvert = new \stdClass;
+        $leadConvert->convertedStatus='Closed - Converted';
+        $leadConvert->doNotCreateOpportunity='false';
+//      $leadConvert->leadId=$convertLEADID;
+        $leadConvert->leadId=$createResponse[0]->id;
+        $leadConvert->overwriteLeadSource='true';
+        $leadConvert->sendNotificationEmail='true';
+        
+        $leadConvertArray = array($leadConvert);
+        $leadConvertResponse = $this->mySforceConnection->convertLead($leadConvertArray);
+        print_r($leadConvertResponse);
+    }
+
 
     public function index(Request $request)
     {
@@ -234,28 +351,22 @@ class Salesforce extends Controller
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
 
         // echo "<pre>";
-          print_r($this->update( array(
-                            array (
-                                'Type' => 'Electrical2',
-                                'id'  => '500f400000DwWZVAA3'
-                          ),array (
-                                'Type' => 'Electrical3',
-                                'Id'  => '500f400000DwWZVAA3'
-                          )), 'Case') );
+          //print_r($this->delete( array('00Qf400000DWVKmEAP') ) );
 
-
-        
-  
 	 //  	echo "<br/>===================<br/>";
 		// echo "<pre>";
 	 //  	print_r($mySforceConnection->getLastRequest());
 
 
  
-  //       print_r($createResponse);
+  //       print_r($createResponse); 500f400000DwnoPAAR / 500f400000DwnoZAAR / 500f400000DwnojAAB
 
   //         $result = $mySforceConnection->describeSObject("Account");
   //         print_r($result);
+    
+          
+
+
     }
 
 

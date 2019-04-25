@@ -40,7 +40,7 @@ class SforceValidationData {
    	public static function readyToUpdate($record)
    	{
    		$counter = 0;
-      $toReturn = null;
+      	$toReturn = null;
    		foreach ($record as $key => $value) {
    			
    			if (strtolower($key) == 'id') {
@@ -54,9 +54,9 @@ class SforceValidationData {
    				}
 
    			 	$toReturn = true;
-          break;
+          		break;
    			} 
-        $counter++;
+        	$counter++;
    		}
 
    		if (count($record) == $counter) {
@@ -64,6 +64,42 @@ class SforceValidationData {
    		}
 
    		return $toReturn;
+   	}
+
+
+   	public static function readyToUpsert($record)
+   	{
+   		$counter = 0;
+      	$toReturn = null;
+   		foreach ($record as $key => $value) {
+   			
+   			if (strtolower($key) == 'id') {
+
+   				if (empty($value)) {
+   					return json_encode($record) . ' => The Id field is empty';
+   				}
+
+   				if (!strlen($value) > 14 && !strlen($value) < 19) {
+   					return ' => The Id is not valid';
+   				}
+
+   			 	$toReturn = true;
+          		break;
+   			} 
+        	$counter++;
+   		}
+   		if (count($record) == $counter) {
+   			
+   			foreach ($record as $key => $value) {
+
+				if (strpos($key, "*") !== false) 
+					return $key;
+			}
+   			//$toReturn = json_encode($record) . ' => Not contains an id field';
+   		}else{
+   			return $toReturn;
+   		}
+
    	}
 
    	public function result()
