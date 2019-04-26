@@ -302,19 +302,34 @@ class Salesforce extends Controller
 
     public function delete($ids)
     {        
-        return $this->modeReturn($this->mySforceConnection->delete($ids), 'json');
+        if(count($ids) > 0)
+            return $this->modeReturn($this->mySforceConnection->delete($ids), 'json');
+        else
+            return 'Provide at least an Id in a the array()';
     }
 
     public function undelete($ids)
-    {        
-        return $this->modeReturn($this->mySforceConnection->undelete($ids), 'json');
+    {   
+        if(count($ids) > 0)
+            return $this->modeReturn($this->mySforceConnection->undelete($ids), 'json');
+        else
+            return 'Provide at least an Id in a the array()';
     }
 
+    /**
+     * function to convert a lead created on salesforce
+     * @param  [type]  $leadId            [Lead Id created in salesforce ready to be converted]
+     * @param  string  $convertedStatus   [Picklist value to close a lead, it is defined on the lead process settings]
+     * @param  boolean $createOpportunity [True / False to execute a creation of opportunity by convertion]
+     * @param  boolean $sendNotification  [True / False to trigger a notification when the lead will be converted]
+     * @return object                     [result]
+     */
     public function convertLead($leadId, $convertedStatus='Closed - Converted', $createOpportunity = true, $sendNotification = false)
     {
         if (!strlen($leadId) > 14 && !strlen($leadId) < 19) 
-            return ' The Id is not valid';
+            return $leadId . ' The Id is not valid';
         
+
 
         $leadConvert = new \stdClass;
         $leadConvert->convertedStatus=$convertedStatus;
