@@ -157,7 +157,7 @@ class Salesforce extends Controller
                 $sObject->type = $object;
                 array_push($records, $sObject);   
             }
-        return $this->modeReturn($this->mySforceConnection->create($records), 'json');
+        return $this->modeReturn($this->mySforceConnection->create($records), 'object');
       }
     }
 
@@ -310,43 +310,44 @@ class Salesforce extends Controller
         return $this->modeReturn($this->mySforceConnection->undelete($ids), 'json');
     }
 
-    public function convertLead($value='',$createOpportunity = false, )
+    public function convertLead($leadId, $convertedStatus='Closed - Converted', $createOpportunity = true, $sendNotification = false)
     {
-        $newLead = new SObject();
+        if (!strlen($leadId) > 14 && !strlen($leadId) < 19) 
+            return ' The Id is not valid';
         
-        $fields = array(
-            'Company' => 'test company',
-            'FirstName' => 'John',
-            'LastName' => 'Smith'
-        );
-        
-        $newLead->fields = $fields;
-        $newLead->type = 'Lead';
-        
-        $createResponse =
-            $this->mySforceConnection->create(
-                array($newLead)
-        );
-        
-        echo "**** Created lead:\r\n <pre>";
-        print_r($createResponse);
+
         $leadConvert = new \stdClass;
-        $leadConvert->convertedStatus='Closed - Converted';
-        $leadConvert->doNotCreateOpportunity='false';
-//      $leadConvert->leadId=$convertLEADID;
-        $leadConvert->leadId=$createResponse[0]->id;
+        $leadConvert->convertedStatus=$convertedStatus;
+        $leadConvert->doNotCreateOpportunity=strval($createOpportunity);
+        $leadConvert->leadId=$leadId;
         $leadConvert->overwriteLeadSource='true';
-        $leadConvert->sendNotificationEmail='true';
+        $leadConvert->sendNotificationEmail=strval($sendNotification);
         
-        $leadConvertArray = array($leadConvert);
-        $leadConvertResponse = $this->mySforceConnection->convertLead($leadConvertArray);
-        print_r($leadConvertResponse);
+        return $this->modeReturn($this->mySforceConnection->convertLead(array($leadConvert)), 'object');
     }
 
 
     public function index(Request $request)
     {
+        $leadVar = $this->insert(
+        array(
+            'Company' => 'test company',
+            'FirstName' => 'John',
+            'LastName' => 'Smith'
+        ), 'Lead');
     	
+        echo "<pre>";
+            print_r($leadVar);
+        echo "</pre>";
+
+
+        
+        $statusConvert = $this->convertLead($leadVar[0]->id, 'Closed - Converted', false);
+
+        echo "<pre>";
+            print_r($statusConvert);
+        echo "</pre>";
+
         // $mySoapClient = $mySforceConnection->
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
 
