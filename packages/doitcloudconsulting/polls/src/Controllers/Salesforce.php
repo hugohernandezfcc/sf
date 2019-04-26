@@ -341,27 +341,74 @@ class Salesforce extends Controller
         return $this->modeReturn($this->mySforceConnection->convertLead(array($leadConvert)), 'object');
     }
 
+    /**
+     * Retrieves a list of available objects for your organization's data. 
+     * @return [type] [description]
+     */
+    public function describeGlobal()
+    {
+        return $this->modeReturn($this->mySforceConnection->describeGlobal(), 'object');
+    }
+
+    /**
+     * Retrieves metadata about page layouts for the specified object type. 
+     * @param  [type] $layout [Layout Name]
+     * @return [type]         [description]
+     */
+    public function describeLayout($layout)
+    {
+        return $this->modeReturn($this->mySforceConnection->describeLayout($layout), 'object');
+    }
+
+    /**
+     * Retrieves metadata (field list and object properties) for the specified object type.
+     * @param  [type] $object [description]
+     * @return [type]         [description]
+     */
+    public function describeSObject($object)
+    {
+        return $this->modeReturn($this->mySforceConnection->describeSObject($object), 'object');
+    }
+
 
     public function index(Request $request)
     {
-        $leadVar = $this->insert(
-        array(
-            'Company' => 'test company',
-            'FirstName' => 'John',
-            'LastName' => 'Smith'
-        ), 'Lead');
+        // $leadVar = $this->insert(
+        // array(
+        //     'Company' => 'test company',
+        //     'FirstName' => 'John',
+        //     'LastName' => 'Smith'
+        // ), 'Lead');
     	
-        echo "<pre>";
-            print_r($leadVar);
-        echo "</pre>";
+        // echo "<pre>";
+        //     print_r($leadVar);
+        // echo "</pre>";
 
 
         
-        $statusConvert = $this->convertLead($leadVar[0]->id, 'Closed - Converted', false);
+        // $statusConvert = $this->convertLead($leadVar[0]->id, 'Closed - Converted', false);
+
+        // echo "<pre>";
+        //     print_r($statusConvert);
+        // echo "</pre>";
+
+
+
+        $response = $this->mySforceConnection->getDeleted("Case", );
 
         echo "<pre>";
-            print_r($statusConvert);
+            print_r($response);
         echo "</pre>";
+        
+        // foreach ($response->sobjects as $key => $value) {
+        //     if ($value->name == 'Account') {
+        //         echo "<pre>";
+        //             print_r($value);
+        //         echo "</pre>";
+        //     }
+        // }
+
+        
 
         // $mySoapClient = $mySforceConnection->
         // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
