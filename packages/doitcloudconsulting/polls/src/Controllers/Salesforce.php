@@ -9,7 +9,7 @@ use doitcloudconsulting\polls\Controllers\sfdc\SforcePartnerClient;
 use doitcloudconsulting\polls\Controllers\sfdc\SObject;
 use Response;
 use doitcloudconsulting\polls\Controllers\sfdc\SforceValidationData;
-
+use Carbon\Carbon;
 
 class Salesforce extends Controller
 {
@@ -370,68 +370,71 @@ class Salesforce extends Controller
         return $this->modeReturn($this->mySforceConnection->describeSObject($object), 'object');
     }
 
-
-    public function index(Request $request)
+    /**
+     * Function responsable of catch a commond date and convert it to unix format.
+     * @param  [type] $date [The date in commmond format]
+     * @return [type]       [Unix format]
+     */
+    public static function toUnixTime($date)
     {
-        // $leadVar = $this->insert(
-        // array(
-        //     'Company' => 'test company',
-        //     'FirstName' => 'John',
-        //     'LastName' => 'Smith'
-        // ), 'Lead');
-    	
-        // echo "<pre>";
-        //     print_r($leadVar);
-        // echo "</pre>";
+        if($date != null){
+            $dateTime = new \DateTime($date); 
+            return $dateTime->format('U');
+        }else
+            return "IS_EMPTY_VARIABLE";
+    }
 
 
-        
-        // $statusConvert = $this->convertLead($leadVar[0]->id, 'Closed - Converted', false);
+    /**
+     * Function to retrive information about records deleted in a range date.
+     * Retrieves the IDs of individual objects of the specified object that have been deleted since the specified time.
+     *     The format right to dates passed as parameter is DD-MM-YYYY
+     * 
+     * @param  [type] $object    [Custom or Standard object]
+     * @param  [type] $startDate [Date from where it will be searched]
+     * @param  [type] $endDate   [Date from where it end searched]
+     * @return [type]            [object]
+     */
+    public function getMeAllDeleted($object, $startDate, $endDate)
+    {
+        $date = Carbon::parse($startDate);
+        $now = Carbon::parse($endDate);
 
-        // echo "<pre>";
-        //     print_r($statusConvert);
-        // echo "</pre>";
+        $diff = $date->diffInDays($now);
 
 
-
-        $response = $this->mySforceConnection->getDeleted("Case", );
-
-        echo "<pre>";
-            print_r($response);
-        echo "</pre>";
-        
-        // foreach ($response->sobjects as $key => $value) {
-        //     if ($value->name == 'Account') {
-        //         echo "<pre>";
-        //             print_r($value);
-        //         echo "</pre>";
-        //     }
-        // }
-
+        if($diff >= 30)
+            return 'INVALID_REPLICATION_DATE: startDate cannot be more than 30 days ago';
         
 
-        // $mySoapClient = $mySforceConnection->
-        // $mylogin = $mySforceConnection->login('mayax@doitcloud.consulting', 'trayecta85IU2JyLDkiairgKI9G4Pap7a8');
-
-        // echo "<pre>";
-          //print_r($this->delete( array('00Qf400000DWVKmEAP') ) );
-
-	 //  	echo "<br/>===================<br/>";
-		// echo "<pre>";
-	 //  	print_r($mySforceConnection->getLastRequest());
-
-
- 
-  //       print_r($createResponse); 500f400000DwnoPAAR / 500f400000DwnoZAAR / 500f400000DwnojAAB
-
-  //         $result = $mySforceConnection->describeSObject("Account");
-  //         print_r($result);
-    
-          
-
+        return $this->modeReturn($this->mySforceConnection->getDeleted($object, intval(Self::toUnixTime($startDate)), intval(Self::toUnixTime($endDate))), 'object');
 
     }
 
+
+    /**
+     * Retrieves the IDs of individual objects of the specified object that have been updated since the specified time.
+     * 
+     * @param  [type] $object    [Custom or Standard object]
+     * @param  [type] $startDate [Date from where it will be searched]
+     * @param  [type] $endDate   [Date from where it end searched]
+     * @return [type]            [object]
+     */
+    public function getMeAllUpdated($object, $startDate, $endDate)
+    {
+        $date = Carbon::parse($startDate);
+        $now = Carbon::parse($endDate);
+
+        $diff = $date->diffInDays($now);
+
+
+        if($diff >= 30)
+            return 'INVALID_REPLICATION_DATE: startDate cannot be more than 30 days ago';
+        
+
+        return $this->modeReturn($this->mySforceConnection->getUpdated($object, intval(Self::toUnixTime($startDate)), intval(Self::toUnixTime($endDate))), 'object');
+
+    }
 
     public function modeReturn($response, $mode = null){
 

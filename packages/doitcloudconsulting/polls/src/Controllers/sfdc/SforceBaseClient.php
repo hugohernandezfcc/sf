@@ -787,6 +787,8 @@ class SforceBaseClient {
 		$arg->sObjectType = new \SoapVar($type, XSD_STRING, 'string', 'http://www.w3.org/2001/XMLSchema');
 		$arg->startDate = $startDate;
 		$arg->endDate = $endDate;
+
+
 		return $this->sforce->getDeleted($arg)->result;
 	}
 
